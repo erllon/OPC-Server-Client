@@ -1,0 +1,11 @@
+C:\VSCodePrograms\ClientServerTest\Client\bin\Debug\netcoreapp2.2\Client.deps.json
+C:\VSCodePrograms\ClientServerTest\Client\bin\Debug\netcoreapp2.2\Client.runtimeconfig.json
+C:\VSCodePrograms\ClientServerTest\Client\bin\Debug\netcoreapp2.2\Client.runtimeconfig.dev.json
+c:\VSCodePrograms\ClientServerTest\Client\bin\Debug\netcoreapp2.2\Client.dll
+c:\VSCodePrograms\ClientServerTest\Client\bin\Debug\netcoreapp2.2\Client.pdb
+c:\VSCodePrograms\ClientServerTest\Client\obj\Debug\netcoreapp2.2\Client.csprojAssemblyReference.cache
+c:\VSCodePrograms\ClientServerTest\Client\obj\Debug\netcoreapp2.2\Client.csproj.CoreCompileInputs.cache
+c:\VSCodePrograms\ClientServerTest\Client\obj\Debug\netcoreapp2.2\Client.AssemblyInfoInputs.cache
+c:\VSCodePrograms\ClientServerTest\Client\obj\Debug\netcoreapp2.2\Client.AssemblyInfo.cs
+c:\VSCodePrograms\ClientServerTest\Client\obj\Debug\netcoreapp2.2\Client.dll
+c:\VSCodePrograms\ClientServerTest\Client\obj\Debug\netcoreapp2.2\Client.pdb

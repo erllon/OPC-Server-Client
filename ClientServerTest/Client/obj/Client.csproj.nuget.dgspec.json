@@ -1,0 +1,62 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\VSCodePrograms\\ClientServerTest\\Client\\Client.csproj": {}
+  },
+  "projects": {
+    "C:\\VSCodePrograms\\ClientServerTest\\Client\\Client.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\VSCodePrograms\\ClientServerTest\\Client\\Client.csproj",
+        "projectName": "Client",
+        "projectPath": "C:\\VSCodePrograms\\ClientServerTest\\Client\\Client.csproj",
+        "packagesPath": "C:\\Users\\NOERLON\\.nuget\\packages\\",
+        "outputPath": "C:\\VSCodePrograms\\ClientServerTest\\Client\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\NOERLON\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp2.2"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp2.2": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp2.2": {
+          "dependencies": {
+            "Microsoft.NETCore.App": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.2.0, )",
+              "autoReferenced": true
+            },
+            "Opc.UaFx.Client": {
+              "target": "Package",
+              "version": "[2.7.4, )"
+            }
+          },
+          "imports": [
+            "net461"
+          ],
+          "assetTargetFallback": true,
+          "warn": true
+        }
+      }
+    }
+  }
+}
