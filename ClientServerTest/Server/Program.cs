@@ -21,18 +21,19 @@ class Program
     nodeList.Add(levelDetectionNode);
     nodeList.Add(temperatureNode);
     nodeList.Add(messageNode); 
-
+    
     using (var server = new OpcServer("opc.tcp://localhost:4840/", nodeList)) 
-    {      
+    {   
       server.Started += new EventHandler((sender, e) => ServerStarted(sender, e, nodeList, server));
       // server.RequestProcessing += new OpcRequestProcessingEventHandler((a, b) => reqProcessing(a,b));
       //server.RequestProcessed += new OpcRequestProcessedEventHandler((sender, e) => RequestProcessed(sender, e));
       server.SessionActivated += new OpcSessionEventHandler((sender, e) => SessionMethod(sender,e));
+      server.SessionCreated += new OpcSessionEventHandler((serr,rerrr)=>sessionCreatedMethod(serr,rerrr));
       server.SessionClosing += new OpcSessionEventHandler((sender, e) => SessionClosingMethod(sender,e));
 
       server.Start();
 
-      while (!avslutt)
+      while (true)
       {        
         if (temperatureNode.Value == 110)
             temperatureNode.Value = 100;
@@ -54,6 +55,11 @@ class Program
     }
   }
 
+    private static void sessionCreatedMethod(object sender, OpcSessionEventArgs eArgs)
+    {
+        Console.WriteLine("Hello from sessionCreatedMethod!");
+    }
+
     private static void SessionClosingMethod(object sender, OpcSessionEventArgs e)
     {
       connectedClients--;
@@ -68,7 +74,6 @@ class Program
       connectedClients++;
       Console.WriteLine($"New session started");
       Console.WriteLine($"Number of clients: " + connectedClients);
-
     }
 
     private static void RequestProcessed(object sender, OpcRequestProcessedEventArgs e)
@@ -111,7 +116,7 @@ class Program
       {
         Console.WriteLine($"Data type: {addednode.DataType} \t ID: {addednode.Id}");
       }
-        Console.WriteLine("-------------------------------------------------------");
+      Console.WriteLine("-------------------------------------------------------");
 
       listOfNodes[0].ApplyChanges(opcServer.SystemContext);
     }
