@@ -26,15 +26,20 @@ class Program
     var mainAlarmNode = new OpcDataVariableNode<bool>(mainNode,"Alarm");
     var mainLevelNode = new OpcDataVariableNode<double>(mainNode,"Level");
     
-    
-
     bool avslutt= false;
 
     nodeList.Add(levelDetectionNode);
     nodeList.Add(temperatureNode);
     nodeList.Add(messageNode); 
+    
     MyNodeManager nodeManager = new MyNodeManager();
-    nodeManager.MonitoredItemsModified += new OpcMonitoredItemsEventHandler((sender,e) => blablametode(sender,e));
+    // nodeManager.MonitoredItemCreated += new OpcMonitoredItemEventHandler((sender,e)=> OnItemCreated(sender,e));
+    // nodeManager.MonitoredItemsCreated += new OpcMonitoredItemsEventHandler((sender,e)=> OnItemsCreated(sender,e));
+    
+    nodeManager.MonitoredItemModified += new OpcMonitoredItemEventHandler((sender,e) => OnSingleItemChanged(sender,e));
+    nodeManager.MonitoredItemsModified += new OpcMonitoredItemsEventHandler((sender,e)=> OnMultipleItemsChanged(sender,e));
+    nodeManager.MonitoredItemDeleted += new OpcMonitoredItemEventHandler((sender, e) => OnItemDeleted(sender,e)); //inntreffer en gang for hver node når klienten kobler seg fra
+    nodeManager.MonitoredItemsDeleted += new OpcMonitoredItemsEventHandler((sender, e) => OnItemsDeleted(sender,e)); //inntreffer hver gang det har blitt slettet flere items/hver gang et enkelt item blir slettet gitt at det er slettet items før
     //nodeManager.CreateNodes(new OpcNodeReferenceCollection());
     //using (var server = new OpcServer("opc.tcp://localhost:4840/", nodeList)) 
     //using (var server = new OpcServer("opc.tcp://localhost:4840/", mainNode))
@@ -53,7 +58,7 @@ class Program
       {
       }
       Console.WriteLine("The server is running...");
-      using(new Timer(UpdateTemperture,server,TimeSpan.Zero,TimeSpan.FromSeconds(1)))
+      //using(new Timer(UpdateTemperture,server,TimeSpan.Zero,TimeSpan.FromSeconds(1)))
       //Console.ReadKey();
       //var testVar = nodeManager.Nodes.Contains("ns=2;s=Level");
       while (true)
@@ -78,12 +83,32 @@ class Program
     }
   }
 
-    private static void sdlkad(object s, OpcNodeAccessEventArgs e)
+    private static void OnItemsDeleted(object sender, OpcMonitoredItemsEventArgs e)
     {
-        throw new NotImplementedException();
+        System.Console.WriteLine("itemsdeleted");
     }
 
-    private static void blablametode(object sender, OpcMonitoredItemsEventArgs e)
+    private static void OnItemDeleted(object xas, OpcMonitoredItemEventArgs dew)
+    {
+        Console.WriteLine("Hello from deleteditemsmethod");
+    }
+
+    private static void OnItemCreated(object sender, OpcMonitoredItemEventArgs e)
+    {
+        Console.WriteLine("Single item created!");
+    }
+
+    private static void OnMultipleItemsChanged(object sender, OpcMonitoredItemsEventArgs e)
+    {        
+      Console.WriteLine("Several items changed!");
+    }
+
+    private static void OnItemsCreated(object sender, OpcMonitoredItemsEventArgs e)
+    {
+        Console.WriteLine("Items created!");
+    }
+
+    private static void OnSingleItemChanged(object sender, OpcMonitoredItemEventArgs e)
     {
         Console.WriteLine("En node-verdi i samlingen har blitt endret!");
     }
@@ -116,8 +141,8 @@ class Program
     private static void SessionMethod(object sender, OpcSessionEventArgs e)
     {
       connectedClients++;
-      Console.WriteLine($"New session started");
-      Console.WriteLine($"Number of clients: " + connectedClients);
+      Console.WriteLine($"\nNew session started");
+      Console.WriteLine($"Number of clients: {connectedClients}\n\n");
     }
 
     private static void RequestProcessed(object sender, OpcRequestProcessedEventArgs e)
@@ -127,6 +152,8 @@ class Program
 
     private static void ServerStarted(object sender, EventArgs eArgs, List<OpcDataVariableNode> listOfNodes, OpcServer opcServer)
     {
+      Console.WriteLine("--------------------------------");
+
       Console.WriteLine("The server is started!");
 
       List<OpcDataVariableNode> doubleList = new List<OpcDataVariableNode>();
@@ -176,7 +203,7 @@ public class MyNodeManager : OpcNodeManager
   {
     // Define custom root node.
       var mainNode = new OpcFolderNode(new OpcName("Main", this.DefaultNamespaceIndex));
-      // Add custom root node to the Objects-Folder (the root of all server nodes):
+      // Add custom root node to the Objects-Folder (the root of all server nodes)
       references.Add(mainNode, OpcObjectTypes.ObjectsFolder);
       // Add custom sub node beneath of the custom root node:
       var isMachineRunningNode = new OpcDataVariableNode<bool>(mainNode,"IsRunning");
@@ -185,6 +212,6 @@ public class MyNodeManager : OpcNodeManager
       var mainLevelNode = new OpcDataVariableNode<double>(mainNode,"Level");
       // Return each custom root node using yield return.
       yield return mainNode;
-      //Mer kode her
+      //Mer kode her som gjennomføres neste gang metoden utføres
   }
 }
