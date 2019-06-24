@@ -1,0 +1,10 @@
+24.06.2019 10:07:21 Data Change from NodeId 'Main/Level': 31224.06.2019 10:08:57 Data Change from NodeId 'Main/Level': 372
+1234
+This
+is Extra
+Text
+This
+is Extra
+Text
+24.06.2019 10:27:26 Data Change from NodeId 'Main/Level': 888
+24.06.2019 10:34:06 Data Change from NodeId 'Main/Level': 144

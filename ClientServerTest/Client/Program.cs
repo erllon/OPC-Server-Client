@@ -5,9 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Opc.UaFx;
 using Opc.UaFx.Client;
+using System.IO;
 using Opc.UaFx.Services;
  
-public class Program {
+public class Program 
+{
+   static string defaultPath = @"C:\VSCodePrograms\ClientServerTest\Client";
   public static async Task Main()
   {
     string stringEntered = "";
@@ -15,14 +18,18 @@ public class Program {
     using (var client = new OpcClient("opc.tcp://localhost:4840"))
     {
       client.Connect();
+      LicenseInfo license = Opc.UaFx.Client.Licenser.LicenseInfo;
+ 
+      if (license.IsExpired)
+        Console.WriteLine("The OPA UA Framework Advanced license is expired!");
+      Console.WriteLine($"License: {license.ToString()}\n");
 
-      using(new Timer(UpdateLevel,client,TimeSpan.Zero,TimeSpan.FromSeconds(1)))
+      //using(new Timer(UpdateLevel,client,TimeSpan.Zero,TimeSpan.FromSeconds(1)))
       while (!exitSession)
       {
         List<OpcNodeId> ids = new List<OpcNodeId>();
         List<OpcValue> values = new List<OpcValue>();
         List<OpcNodeId> listOfIds = new List<OpcNodeId>();
-
         //*En måte å lese og skrive ut nodene på*/
         //browseNodes(client, listOfIds);
         //readNodes(client,listOfIds);
@@ -55,7 +62,7 @@ public class Program {
           Console.WriteLine($"Name: {childNode.Name}\t\t\tValue: {valueRead}");
         } 
         */
-        await CheckIfEntered();
+        //await CheckIfEntered();
         DisplayMenu();
         char menuChoice = Console.ReadKey().KeyChar;
         Console.WriteLine();
@@ -65,15 +72,25 @@ public class Program {
           {
             Console.Write("Enter the name of the node you want to subscribe to: ");
             string entered = Console.ReadLine();
-            OpcNodeInfo nodeInfo = client.BrowseNode($"ns=2;Main/{entered}");
-            if(!nodeInfo.DisplayName.IsNull)//TODO: Se om dette er en god nok test
+            try
             {
-              client.SubscribeDataChange(nodeInfo.NodeId,HandleDataChanged);
+              OpcNodeInfo nodeInfo = client.BrowseNode($"ns=2;Main/{entered}");
+              if(!nodeInfo.DisplayName.IsNull)//TODO: Se om dette er en god nok test
+              {
+                client.SubscribeDataChange(nodeInfo.NodeId,HandleDataChanged);
+                Console.WriteLine($"Subscribed to {nodeInfo.NodeId.Value}\n");
+              }
+              else
+              {
+                Console.WriteLine("The node entered does not exist");
+              }
             }
-            else
+            catch
             {
-              Console.WriteLine("The node entered does not exist");
+                Console.WriteLine("Catch...");
+              
             }
+            
             break;
           }
           case 'b':
@@ -90,12 +107,44 @@ public class Program {
               OpcNodeInfo info = client.BrowseNode($"ns=2;Main/{nodeName}");
               if(!info.DisplayName.IsNull)
               {
-                Console.Write("Enter new value: ");
                 try
                 {
-                  double newVal = Convert.ToDouble(Console.ReadLine());
-                  Console.WriteLine($"\n\nOld value: {client.ReadNode(info.NodeId)}");              
-                  client.WriteNode(info.NodeId,newVal);
+                  var nodeToChange = client.ReadNode(info.NodeId);
+                  Console.Write("Enter new value: ");
+                  string newValueEntered = Console.ReadLine();
+                  Console.WriteLine($"\n\nOld value: {client.ReadNode(info.NodeId)}");
+                  switch(nodeToChange.DataType)
+                  {
+                    case OpcDataType.Boolean:
+                    {
+                      if(newValueEntered == "1" || newValueEntered.ToUpper()=="TRUE")
+                      {
+                        client.WriteNode(info.NodeId,true);
+                      }
+                      else
+                      {
+                        client.WriteNode(info.NodeId,false);
+                      }
+                      break;                        
+                    }
+                    case OpcDataType.Double:
+                    {
+                      double newValDouble = Convert.ToDouble(newValueEntered);
+                      client.WriteNode(info.NodeId,newValDouble);
+                      break;
+                    }                    
+                    case OpcDataType.Integer:
+                    {
+                      double newValInteger = Convert.ToInt32(newValueEntered);
+                      client.WriteNode(info.NodeId,newValInteger);
+                      break;
+                    }
+                    case OpcDataType.String:
+                    {
+                      client.WriteNode(info.NodeId,newValueEntered);
+                      break;
+                    }
+                  }
                   Console.WriteLine($"New value: {client.ReadNode(info.NodeId)}\n\n");
                 }
                 catch
@@ -117,13 +166,69 @@ public class Program {
             
           }
           case 'd':
+          {            
+            List<OpcNodeInfo> returnList = new List<OpcNodeInfo>();
+            OpcNodeInfo nodeInfo;
+            foreach(OpcSubscription subscription in client.Subscriptions)
+            {
+            foreach(OpcMonitoredItem item in subscription.MonitoredItems)
+            {
+              var currentNode = client.ReadNode(item.NodeId);
+              var valueOfNode = currentNode.Value;// .DataTypeId.Value;
+              Console.WriteLine($"Old value: {client.ReadNode(item.NodeId)}");
+
+              switch(currentNode.DataType)
+              {
+                case OpcDataType.Boolean:
+                {
+                  if(Convert.ToBoolean(valueOfNode) == true)
+                  {
+                    client.WriteNode(item.NodeId, false); 
+                  }
+                  else
+                  {
+                    client.WriteNode(item.NodeId, true);                    
+                  }
+
+                  break;                        
+                }
+                case OpcDataType.Double:
+                {
+                  double value = Convert.ToDouble(valueOfNode);
+                  client.WriteNode(item.NodeId, value + 1);     
+                  break;
+                }                    
+                case OpcDataType.Integer:
+                {
+                  int intValue = Convert.ToInt32(valueOfNode) + 1;
+                  client.WriteNode(item.NodeId,intValue);              
+                  break;
+                }
+                case OpcDataType.String:
+                {
+                  string stringValue = valueOfNode.ToString() + 'a';
+                  client.WriteNode(item.NodeId,stringValue);
+                  break;
+                }
+              }
+              //client.WriteNode(item.NodeId);
+              Console.WriteLine($"New value: {client.ReadNode(item.NodeId)}");
+
+              Console.WriteLine($"NodeID: {item.NodeId}\t\t Value: {item.LastDataChange.Value}");
+            }
+          }        
+
+            break;
+          }
+          case 'e':
           {
             var node = client.BrowseNode(OpcObjectTypes.ObjectsFolder);
+            //var node = client.BrowseNode(OpcObjectTypes.DataTypesFolder);
             browse(node);
             break;
            
           }    
-          case 'e':
+          case 'f':
           {
             client.Disconnect();
             Console.WriteLine("Session is exiting...");
@@ -133,7 +238,6 @@ public class Program {
           default:
           {
             Console.WriteLine(stringEntered + " is not an accepted command");
-            client.WriteNode("ns=2;s=Main/Level",12);
             break;
           }            
         }
@@ -142,37 +246,90 @@ public class Program {
     }
   }
    private static void browse(OpcNodeInfo node, int level = 0)
-            {
-                Console.WriteLine("{0}{1}({2})",
-                        new string('.', level * 4),
-                        node.Attribute(OpcAttribute.DisplayName).Value,
-                        node.NodeId);
-            
-                level++;
-            
-                foreach (var childNode in node.Children())
-                    browse(childNode, level);
-            } 
-  private static void UpdateLevel(object state)
+   
     {
-      var opcClient = (OpcClient)state;
-      var mnode = opcClient.WriteNode("ns=2;s=Main/Level", (Convert.ToDouble(opcClient.ReadNode("ns=2;s=Main/Level").Value))+12);
-      Thread.Sleep(1000);
+        Console.WriteLine("{0}{1}({2})",
+                new string('.', level * 4),
+                node.Attribute(OpcAttribute.DisplayName).Value,
+                node.NodeId);
+        Console.WriteLine("*************");
+        Console.WriteLine($"{node.NodeId}");
+        Console.WriteLine("*************");
+
+    
+        level++;
+    
+        foreach (var childNode in node.Children())
+            browse(childNode, level);
+  } 
+  private static void UpdateLevel(object state)
+  {
+    var opcClient = (OpcClient)state;
+    if(opcClient.State == OpcClientState.Connected)
+    {
+      try
+      {
+        var mnode = opcClient.WriteNode("ns=2;s=Main/Level", (Convert.ToDouble(opcClient.ReadNode("ns=2;s=Main/Level").Value))+12);
+      }
+      catch(Exception ex)
+      {
+        Console.WriteLine($"ERROR: {ex.Message}");
+      }
+
     }
+    Thread.Sleep(1000);
+  }
     private static void DisplayMenu()
     {
-        Console.WriteLine("What do you want to do?");       
-        Console.WriteLine("a) Subscribe to node");
-        Console.WriteLine("b) Display subscribed nodes");
-        Console.WriteLine("c) Write value of node");
-        Console.WriteLine("d) browse all nodes in foldernodes");
-        Console.WriteLine("e) Disconnect from server");
+      Console.WriteLine("Press a key to display the menu...");
+      ConsoleKeyInfo key = Console.ReadKey();
+      Console.WriteLine("\nWhat do you want to do?");       
+      Console.WriteLine("a) Subscribe to node");
+      Console.WriteLine("b) Display subscribed nodes");
+      Console.WriteLine("c) Write value of node");
+      Console.WriteLine("d) Increment all subscribed nodes by 1");
+      Console.WriteLine("e) Browse all nodes in foldernodes");
+      Console.WriteLine("f) Disconnect from server");
+        
     }
     private static void HandleDataChanged(object sender, OpcDataChangeReceivedEventArgs e)
     {
         
         OpcMonitoredItem item = (OpcMonitoredItem)sender;
-        Console.WriteLine($"Data Change from NodeId '{item.NodeId.Value}': {e.Item.Value}");
+        WriteChangesToFile(item, e, defaultPath);
+        //Console.WriteLine($"Data Change from NodeId '{item.NodeId.Value}': {e.Item.Value}");
+    }
+
+    private static void WriteChangesToFile(OpcMonitoredItem item, OpcDataChangeReceivedEventArgs e, string folderPath)
+    {
+      string formatedNodeName = FormatNodeName(item.NodeId.Value.ToString());
+      string filePath = $@"{folderPath}\{formatedNodeName}_log.txt";
+      string text = $"{e.MonitoredItem.LastNotification.PublishTime.Value.ToLocalTime()} Data Change from NodeId '{item.NodeId.Value}': {e.Item.Value}";
+      if(!File.Exists(filePath))
+      {
+        using(StreamWriter sw = new StreamWriter(filePath))
+        {
+          sw.WriteLine(text);
+        }
+      }
+      else
+      {
+        using(StreamWriter sw = File.AppendText(filePath))
+        {
+          sw.WriteLine(text);
+        }
+      }
+    }
+
+    private static string FormatNodeName(string completeNodeName)
+    {
+        string[] splittedStrings = completeNodeName.Split('/');
+        string returnString = "";
+        foreach(string name in splittedStrings)
+        {
+          returnString += $@"{name}_";
+        }
+        return returnString;
     }
 
     private static void OnSubscriptionsChanged(object sender, EventArgs e)
@@ -207,14 +364,17 @@ public class Program {
       return true;
     }
     private static void browseNodes(OpcClient opcClient, List<OpcNodeId> idList)
-    {      
-      OpcNodeInfo mainInfo = opcClient.BrowseNode("ns=2;Main");
-      Console.WriteLine("**********************");
+    {
+      Console.Write("Enter the name of the node you want to browse: ");
+      string nodeOfInterest = Console.ReadLine();
+
+      OpcNodeInfo mainInfo = opcClient.BrowseNode("ns=2;"+nodeOfInterest);//("ns=2;Main");
+      Console.WriteLine("\n**********************");
       Console.WriteLine($"BROWSING NODE: {mainInfo.DisplayName}");
       Console.WriteLine("**********************");
 
       
-      Console.WriteLine("\n\nPrinting all childnodes of " + mainInfo.DisplayName + ":");
+      Console.WriteLine("Printing all childnodes of " + mainInfo.DisplayName + ":");
       Console.Write("Name:");
       foreach(var subNode in mainInfo.Children())
       {
@@ -253,7 +413,7 @@ public class Program {
         {
           foreach(OpcMonitoredItem item in subscription.MonitoredItems)
           {
-            System.Console.WriteLine($"NodeID: {item.ResolvedNodeId.Value}\t\t Value: {item.LastDataChange.Value}");
+            Console.WriteLine($"NodeID: {item.ResolvedNodeId.Value}\t\t Value: {item.LastDataChange.Value}");
           }
         }        
     }

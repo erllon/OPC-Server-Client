@@ -1,0 +1,20 @@
+24.06.2019 12:19:08 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 12:24:38 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 13:12:30 Data Change from NodeId 'Main/Message': Ny verdi til message
+24.06.2019 13:13:10 Data Change from NodeId 'Main/Message': Dette er et forsok paa aa endre verdi
+24.06.2019 13:56:12 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 13:58:44 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 14:01:16 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 14:03:34 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 14:31:43 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 14:33:53 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 14:35:34 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 14:39:10 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 14:46:30 Data Change from NodeId 'Main/Message': Meldingsverdi
+24.06.2019 14:46:36 Data Change from NodeId 'Main/Message': Meldingsverdia
+24.06.2019 14:46:43 Data Change from NodeId 'Main/Message': Meldingsverdiaa
+24.06.2019 14:46:48 Data Change from NodeId 'Main/Message': Meldingsverdiaaa
+24.06.2019 14:46:50 Data Change from NodeId 'Main/Message': Meldingsverdiaaaa
+24.06.2019 14:46:51 Data Change from NodeId 'Main/Message': Meldingsverdiaaaaa
+24.06.2019 14:46:53 Data Change from NodeId 'Main/Message': Meldingsverdiaaaaaa
+24.06.2019 14:46:56 Data Change from NodeId 'Main/Message': Meldingsverdiaaaaaaa

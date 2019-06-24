@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 using System;
 using Opc.UaFx;
 using Opc.UaFx.Server;
@@ -22,6 +23,8 @@ class Program
     mainNode = new OpcFolderNode("Main");
     var mainIsRunningNode = new OpcDataVariableNode<bool>(mainNode, "IsRunning");
     var mainMessageNode = new OpcDataVariableNode<string>(mainNode,"Message");
+    var mainListNode = new OpcDataVariableNode<List<int>>(mainNode,"List");
+
     mainTemperatureNode = new OpcDataVariableNode<double>(mainNode,"Temperature");
     var mainAlarmNode = new OpcDataVariableNode<bool>(mainNode,"Alarm");
     var mainLevelNode = new OpcDataVariableNode<double>(mainNode,"Level");
@@ -56,6 +59,7 @@ class Program
       server.Start();
       foreach(var node in nodeManager.Nodes)
       {
+        //System.Console.WriteLine($"Node: {node}   Node-ID: {node.Id} Type: {node.Id.Type} Category: {node.Category} Description: {node.Description} Symbolsk navn: {node.SymbolicName}");
       }
       Console.WriteLine("The server is running...");
       //using(new Timer(UpdateTemperture,server,TimeSpan.Zero,TimeSpan.FromSeconds(1)))
