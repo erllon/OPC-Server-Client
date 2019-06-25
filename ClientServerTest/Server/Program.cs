@@ -54,7 +54,6 @@ class Program
       server.SessionActivated += new OpcSessionEventHandler((sender, e) => SessionMethod(sender,e));
       server.SessionCreated += new OpcSessionEventHandler((serr,rerrr)=>sessionCreatedMethod(serr,rerrr));
       server.SessionClosing += new OpcSessionEventHandler((sender, e) => SessionClosingMethod(sender,e));
-
       
       server.Start();
       foreach(var node in nodeManager.Nodes)
@@ -197,7 +196,6 @@ class Program
     }
 }
 
-the
 public class MyNodeManager : OpcNodeManager
 {
   public IEnumerable<IOpcNode> noder{get;set;}
