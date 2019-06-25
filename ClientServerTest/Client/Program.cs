@@ -11,6 +11,7 @@ using Opc.UaFx.Services;
 public class Program 
 {
    static string defaultPath = @"C:\VSCodePrograms\ClientServerTest\Client";
+   static Mutex mutexForNodeVar = new Mutex();
   public static async Task Main()
   {
     string stringEntered = "";
@@ -21,10 +22,12 @@ public class Program
       LicenseInfo license = Opc.UaFx.Client.Licenser.LicenseInfo;
  
       if (license.IsExpired)
+      {
         Console.WriteLine("The OPA UA Framework Advanced license is expired!");
+      }
       Console.WriteLine($"License: {license.ToString()}\n");
 
-      //using(new Timer(UpdateLevel,client,TimeSpan.Zero,TimeSpan.FromSeconds(1)))
+      ThreadPool.QueueUserWorkItem(UpdateLevel,client);
       while (!exitSession)
       {
         List<OpcNodeId> ids = new List<OpcNodeId>();
@@ -109,10 +112,14 @@ public class Program
               {
                 try
                 {
+                  mutexForNodeVar.WaitOne();
                   var nodeToChange = client.ReadNode(info.NodeId);
+                  mutexForNodeVar.ReleaseMutex();
                   Console.Write("Enter new value: ");
                   string newValueEntered = Console.ReadLine();
+                  mutexForNodeVar.WaitOne();
                   Console.WriteLine($"\n\nOld value: {client.ReadNode(info.NodeId)}");
+                  mutexForNodeVar.ReleaseMutex();
                   switch(nodeToChange.DataType)
                   {
                     case OpcDataType.Boolean:
@@ -145,7 +152,9 @@ public class Program
                       break;
                     }
                   }
+                  mutexForNodeVar.WaitOne();
                   Console.WriteLine($"New value: {client.ReadNode(info.NodeId)}\n\n");
+                  mutexForNodeVar.ReleaseMutex();
                 }
                 catch
                 {
@@ -173,9 +182,12 @@ public class Program
             {
             foreach(OpcMonitoredItem item in subscription.MonitoredItems)
             {
+              mutexForNodeVar.WaitOne();
               var currentNode = client.ReadNode(item.NodeId);
               var valueOfNode = currentNode.Value;// .DataTypeId.Value;
               Console.WriteLine($"Old value: {client.ReadNode(item.NodeId)}");
+              mutexForNodeVar.ReleaseMutex();
+
 
               switch(currentNode.DataType)
               {
@@ -212,7 +224,9 @@ public class Program
                 }
               }
               //client.WriteNode(item.NodeId);
+              mutexForNodeVar.WaitOne();
               Console.WriteLine($"New value: {client.ReadNode(item.NodeId)}");
+              mutexForNodeVar.ReleaseMutex();
 
               Console.WriteLine($"NodeID: {item.NodeId}\t\t Value: {item.LastDataChange.Value}");
             }
@@ -245,7 +259,30 @@ public class Program
       }
     }
   }
-   private static void browse(OpcNodeInfo node, int level = 0)
+
+    private static void UpdateLevel(object state)
+    {
+        var opcClient = (OpcClient)state;
+
+    while(opcClient.State == OpcClientState.Connected) //var if frem til 25.06
+    {
+      try
+      {
+        mutexForNodeVar.WaitOne();
+        var mnode = opcClient.WriteNode("ns=2;s=Main/Level", (Convert.ToDouble(opcClient.ReadNode("ns=2;s=Main/Level").Value))+12);
+        mutexForNodeVar.ReleaseMutex();
+
+      }
+      catch(Exception ex)
+      {
+        Console.WriteLine($"ERROR: {ex.Message}");
+      }
+    Thread.Sleep(1000);
+
+    }
+    }
+
+    private static void browse(OpcNodeInfo node, int level = 0)
    
     {
         Console.WriteLine("{0}{1}({2})",
@@ -262,23 +299,24 @@ public class Program
         foreach (var childNode in node.Children())
             browse(childNode, level);
   } 
-  private static void UpdateLevel(object state)
-  {
-    var opcClient = (OpcClient)state;
-    if(opcClient.State == OpcClientState.Connected)
-    {
-      try
-      {
-        var mnode = opcClient.WriteNode("ns=2;s=Main/Level", (Convert.ToDouble(opcClient.ReadNode("ns=2;s=Main/Level").Value))+12);
-      }
-      catch(Exception ex)
-      {
-        Console.WriteLine($"ERROR: {ex.Message}");
-      }
+  // private static void UpdateLevel(object state)
+  // {
+  //   var opcClient = (OpcClient)state;
 
-    }
-    Thread.Sleep(1000);
-  }
+  //   while(opcClient.State == OpcClientState.Connected) //var if frem til 25.06
+  //   {
+  //     try
+  //     {
+  //       var mnode = opcClient.WriteNode("ns=2;s=Main/Level", (Convert.ToDouble(opcClient.ReadNode("ns=2;s=Main/Level").Value))+12);
+  //     }
+  //     catch(Exception ex)
+  //     {
+  //       Console.WriteLine($"ERROR: {ex.Message}");
+  //     }
+
+  //   }
+  //   Thread.Sleep(1000);
+  // }
     private static void DisplayMenu()
     {
       Console.WriteLine("Press a key to display the menu...");
@@ -349,7 +387,10 @@ public class Program
     //      Da skal det være lettere å gå gjennom alle nodene i idList
     private static void readNodes(OpcClient opcClient, List<OpcNodeId> idList)
     {
+      mutexForNodeVar.WaitOne();
       List<OpcValue> valueList = opcClient.ReadNodes(idList).ToList();
+      mutexForNodeVar.ReleaseMutex();
+
       Console.Write("Value:");
       foreach(var value in valueList)
       {
@@ -413,7 +454,8 @@ public class Program
         {
           foreach(OpcMonitoredItem item in subscription.MonitoredItems)
           {
-            Console.WriteLine($"NodeID: {item.ResolvedNodeId.Value}\t\t Value: {item.LastDataChange.Value}");
+            Console.WriteLine($"NodeID: {item.ResolvedNodeId.Value}\t\t Readnode-value: {opcClient.ReadNode(item.NodeId)} Time: {opcClient.ReadNode(item.NodeId).ServerTimestamp.Value.ToLocalTime()}");
+           
           }
         }        
     }

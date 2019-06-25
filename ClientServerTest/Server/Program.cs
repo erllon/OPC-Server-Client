@@ -11,7 +11,8 @@ class Program
   static OpcFolderNode mainNode;
   static OpcDataVariableNode<double> mainTemperatureNode;
   static int connectedClients;
-  public static void Main()
+
+    public static void Main()
   {
     
     connectedClients = 0;
@@ -191,7 +192,6 @@ class Program
         Console.WriteLine($"Data type: {addednode.DataType} \t ID: {addednode.Id}");
       }
       Console.WriteLine("-------------------------------------------------------");
-      int i = 23;
       listOfNodes[0].ApplyChanges(opcServer.SystemContext);
     }
 }
