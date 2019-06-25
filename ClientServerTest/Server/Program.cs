@@ -196,12 +196,15 @@ class Program
       listOfNodes[0].ApplyChanges(opcServer.SystemContext);
     }
 }
+
+the
 public class MyNodeManager : OpcNodeManager
 {
   public IEnumerable<IOpcNode> noder{get;set;}
  public MyNodeManager() : base("http://mynamespace/")
  {
     noder = this.CreateNodes(new OpcNodeReferenceCollection());
+    int e = 2;
  }
  protected override IEnumerable<IOpcNode> CreateNodes(OpcNodeReferenceCollection references)
   {
