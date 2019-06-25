@@ -13,8 +13,7 @@ class Program
   static int connectedClients;
 
     public static void Main()
-  {
-    
+  {    
     connectedClients = 0;
     List<OpcDataVariableNode> nodeList = new List<OpcDataVariableNode>();
     var temperatureNode = new OpcDataVariableNode<double>("Temperature", 100.0);
