@@ -191,7 +191,7 @@ class Program
         Console.WriteLine($"Data type: {addednode.DataType} \t ID: {addednode.Id}");
       }
       Console.WriteLine("-------------------------------------------------------");
-
+      int i = 23;
       listOfNodes[0].ApplyChanges(opcServer.SystemContext);
     }
 }
