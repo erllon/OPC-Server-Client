@@ -50,8 +50,8 @@ class Program
     using(var server = new OpcServer("opc.tcp://localhost:4840/", nodeManager))
     {   
       server.Started += new EventHandler((sender, e) => ServerStarted(sender, e, nodeList, server));
-      // server.RequestProcessing += new OpcRequestProcessingEventHandler((a, b) => reqProcessing(a,b));
-      //server.RequestProcessed += new OpcRequestProcessedEventHandler((sender, e) => RequestProcessed(sender, e));
+      server.RequestProcessing += new OpcRequestProcessingEventHandler((a, b) => reqProcessing(a,b));
+      server.RequestProcessed += new OpcRequestProcessedEventHandler((sender, e) => RequestProcessed(sender, e));
       server.SessionActivated += new OpcSessionEventHandler((sender, e) => SessionMethod(sender,e));
       server.SessionCreated += new OpcSessionEventHandler((serr,rerrr)=>sessionCreatedMethod(serr,rerrr));
       server.SessionClosing += new OpcSessionEventHandler((sender, e) => SessionClosingMethod(sender,e));
@@ -61,7 +61,7 @@ class Program
       {
         //System.Console.WriteLine($"Node: {node}   Node-ID: {node.Id} Type: {node.Id.Type} Category: {node.Category} Description: {node.Description} Symbolsk navn: {node.SymbolicName}");
       }
-      Console.WriteLine("The server is running...");
+      //Console.WriteLine("The server is running...");
       //using(new Timer(UpdateTemperture,server,TimeSpan.Zero,TimeSpan.FromSeconds(1)))
       //Console.ReadKey();
       //var testVar = nodeManager.Nodes.Contains("ns=2;s=Level");
@@ -130,6 +130,12 @@ class Program
 
     private static void sessionCreatedMethod(object sender, OpcSessionEventArgs eArgs)
     {
+      var d = (OpcServer)sender;
+      List<OpcEndpointDescription> e = d.GetEndpoints().ToList();
+      foreach(OpcEndpointDescription endpoint in e)
+      {
+        Console.WriteLine($"Server name: {endpoint.Server.Name}\t\t Server uri: {endpoint.Server.Uri}\t\t URL: {endpoint.Url}");
+      }
         Console.WriteLine("Hello from sessionCreatedMethod!");
     }
 
@@ -140,7 +146,7 @@ class Program
       Console.WriteLine($"Number of clients: " + connectedClients);
     }
 
-    private static void reqProcessing(object a, OpcRequestProcessingEventArgs b) => Console.WriteLine("New request received\n");
+    private static void reqProcessing(object a, OpcRequestProcessingEventArgs b) => Console.WriteLine("Processing new request\n");
 
     private static void SessionMethod(object sender, OpcSessionEventArgs e)
     {
@@ -151,48 +157,50 @@ class Program
 
     private static void RequestProcessed(object sender, OpcRequestProcessedEventArgs e)
     {
-       Console.WriteLine("New request received");
+
+       Console.WriteLine("New request processed");
+       
     }
 
     private static void ServerStarted(object sender, EventArgs eArgs, List<OpcDataVariableNode> listOfNodes, OpcServer opcServer)
     {
-      Console.WriteLine("--------------------------------");
 
-      Console.WriteLine("The server is started!");
-
-      List<OpcDataVariableNode> doubleList = new List<OpcDataVariableNode>();
-      List<OpcDataVariableNode> stringList = new List<OpcDataVariableNode>();
-      List<OpcDataVariableNode> otherList = new List<OpcDataVariableNode>();
-
-      Console.WriteLine("Adding all nodes to the list...");
-      foreach(OpcDataVariableNode node in listOfNodes)
-      {
-        if(node is OpcDataVariableNode<double>)
-        {
-          doubleList.Add(node);
-        }
-        else if(node is OpcDataVariableNode<string>)
-        {
-          stringList.Add(node);
-        }
-        else
-        {
-          otherList.Add(node);
-        }
-      }
-      listOfNodes.Clear();
-      listOfNodes.AddRange(doubleList); 
-      listOfNodes.AddRange(stringList); 
-      listOfNodes.AddRange(otherList); 
-      
-      Console.WriteLine("Finished adding nodes");
-      Console.WriteLine("The nodes added are:");
-      foreach(OpcDataVariableNode addednode in listOfNodes)
-      {
-        Console.WriteLine($"Data type: {addednode.DataType} \t ID: {addednode.Id}");
-      }
+      Console.WriteLine("The server is started");
       Console.WriteLine("-------------------------------------------------------");
-      listOfNodes[0].ApplyChanges(opcServer.SystemContext);
+
+      // List<OpcDataVariableNode> doubleList = new List<OpcDataVariableNode>();
+      // List<OpcDataVariableNode> stringList = new List<OpcDataVariableNode>();
+      // List<OpcDataVariableNode> otherList = new List<OpcDataVariableNode>();
+
+      // Console.WriteLine("Adding all nodes to the list...");
+      // foreach(OpcDataVariableNode node in listOfNodes)
+      // {
+      //   if(node is OpcDataVariableNode<double>)
+      //   {
+      //     doubleList.Add(node);
+      //   }
+      //   else if(node is OpcDataVariableNode<string>)
+      //   {
+      //     stringList.Add(node);
+      //   }
+      //   else
+      //   {
+      //     otherList.Add(node);
+      //   }
+      // }
+      // listOfNodes.Clear();
+      // listOfNodes.AddRange(doubleList); 
+      // listOfNodes.AddRange(stringList); 
+      // listOfNodes.AddRange(otherList); 
+      
+      // Console.WriteLine("Finished adding nodes");
+      // Console.WriteLine("The nodes added are:");
+      // foreach(OpcDataVariableNode addednode in listOfNodes)
+      // {
+      //   Console.WriteLine($"Data type: {addednode.DataType} \t ID: {addednode.Id}");
+      // }
+      //Console.WriteLine("-------------------------------------------------------");
+      //listOfNodes[0].ApplyChanges(opcServer.SystemContext);
     }
 }
 
