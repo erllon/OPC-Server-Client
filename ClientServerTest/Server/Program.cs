@@ -49,8 +49,8 @@ class Program
     using(var server = new OpcServer("opc.tcp://localhost:4840/", nodeManager))
     {   
       server.Started += new EventHandler((sender, e) => ServerStarted(sender, e, nodeList, server));
-      server.RequestProcessing += new OpcRequestProcessingEventHandler((a, b) => reqProcessing(a,b));
-      server.RequestProcessed += new OpcRequestProcessedEventHandler((sender, e) => RequestProcessed(sender, e));
+      //server.RequestProcessing += new OpcRequestProcessingEventHandler((a, b) => reqProcessing(a,b));
+      //server.RequestProcessed += new OpcRequestProcessedEventHandler((sender, e) => RequestProcessed(sender, e));
       server.SessionActivated += new OpcSessionEventHandler((sender, e) => SessionMethod(sender,e));
       server.SessionCreated += new OpcSessionEventHandler((serr,rerrr)=>sessionCreatedMethod(serr,rerrr));
       server.SessionClosing += new OpcSessionEventHandler((sender, e) => SessionClosingMethod(sender,e));
@@ -206,12 +206,8 @@ class Program
 public class MyNodeManager : OpcNodeManager
 {
   public IEnumerable<IOpcNode> noder{get;set;}
- public MyNodeManager() : base("http://mynamespace/")
- {
-    noder = this.CreateNodes(new OpcNodeReferenceCollection());
-    int e = 2;
- }
- protected override IEnumerable<IOpcNode> CreateNodes(OpcNodeReferenceCollection references)
+    public MyNodeManager() : base("http://mynamespace/") => noder = this.CreateNodes(new OpcNodeReferenceCollection());
+    protected override IEnumerable<IOpcNode> CreateNodes(OpcNodeReferenceCollection references)
   {
     // Define custom root node.
       var mainNode = new OpcFolderNode(new OpcName("Main", this.DefaultNamespaceIndex));
@@ -220,8 +216,14 @@ public class MyNodeManager : OpcNodeManager
       // Add custom sub node beneath of the custom root node:
       var isMachineRunningNode = new OpcDataVariableNode<bool>(mainNode,"IsRunning");
       var mainMessageNode = new OpcDataVariableNode<string>(mainNode,"Message","Meldingsverdi");
+      var errorMessageNode = new OpcDataVariableNode<string>(mainMessageNode,"Error");
+
       var mainAlarmNode = new OpcDataVariableNode<bool>(mainNode,"Alarm");
+      var errorAlarmeNode = new OpcDataVariableNode<string>(mainAlarmNode,"Error");
+
       var mainLevelNode = new OpcDataVariableNode<double>(mainNode,"Level");
+      var errorLeveleNode = new OpcDataVariableNode<string>(mainLevelNode,"Error");
+
       // Return each custom root node using yield return.
       yield return mainNode;
       //Mer kode her som gjennomføres neste gang metoden utføres

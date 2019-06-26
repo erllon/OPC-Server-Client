@@ -17,3 +17,8 @@
 24.06.2019 14:46:51 Data Change from NodeId 'Main/Alarm': True
 24.06.2019 14:46:53 Data Change from NodeId 'Main/Alarm': False
 24.06.2019 14:46:56 Data Change from NodeId 'Main/Alarm': True
+26.06.2019 12:56:31 Data Change from NodeId 'Main/Alarm': False
+26.06.2019 12:56:42 Data Change from NodeId 'Main/Alarm': True
+26.06.2019 12:56:46 Data Change from NodeId 'Main/Alarm': False
+26.06.2019 12:56:47 Data Change from NodeId 'Main/Alarm': True
+26.06.2019 12:56:49 Data Change from NodeId 'Main/Alarm': False

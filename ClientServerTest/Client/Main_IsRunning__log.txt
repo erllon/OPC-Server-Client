@@ -1,0 +1,1 @@
+26.06.2019 13:01:13 Data Change from NodeId 'Main/IsRunning': False

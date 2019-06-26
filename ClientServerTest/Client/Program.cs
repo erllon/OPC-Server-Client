@@ -38,6 +38,7 @@ public class Program
           List<OpcNodeId> ids = new List<OpcNodeId>();
           List<OpcValue> values = new List<OpcValue>();
           List<OpcNodeId> listOfIds = new List<OpcNodeId>();
+          Dictionary<OpcNodeId,OpcNodeIdFormat> dict = new Dictionary<OpcNodeId, OpcNodeIdFormat>();
           
           DisplayMenu();
           char menuChoice = Console.ReadKey().KeyChar;
@@ -46,25 +47,33 @@ public class Program
           {
             case 'a':
             {
-              Console.Write("Enter the name of the node you want to subscribe to: ");
-              string entered = Console.ReadLine();
-              try
+              var node = client.BrowseNode(OpcObjectTypes.ObjectsFolder);
+
+              OpcNodeId nodeIdSubscr = findNodeToSubscribe(node);
+              if(nodeIdSubscr != null)
               {
-                OpcNodeInfo nodeInfo = client.BrowseNode($"ns=2;Main/{entered}");
-                if(!nodeInfo.DisplayName.IsNull)//TODO: Se om dette er en god nok test
+                try
                 {
-                  client.SubscribeDataChange(nodeInfo.NodeId, HandleDataChanged);
-                  Console.WriteLine($"Subscribed to {nodeInfo.NodeId.Value}\n");
+                  OpcNodeInfo nodeInfo = client.BrowseNode($"2:{nodeIdSubscr.ValueAsString}");
+                  if(!nodeInfo.DisplayName.IsNull)//TODO: Se om dette er en god nok test
+                  {
+                    client.SubscribeDataChange(nodeInfo.NodeId, HandleDataChanged);
+                    Console.WriteLine($"Subscribed to {nodeInfo.NodeId.Value}\n");
+                  }
+                  else
+                  {
+                    Console.WriteLine("The node entered does not exist");
+                  }
                 }
-                else
+                catch(Exception ex)
                 {
-                  Console.WriteLine("The node entered does not exist");
-                }
-              }
-              catch(Exception ex)
-              {
                   Console.WriteLine($"ERROR: {ex.Message}");                
-              }              
+                }              
+              }
+              else
+              {
+                Console.WriteLine("Subscription aborted...");
+              }
               break;
             }
             case 'b':
@@ -77,7 +86,8 @@ public class Program
               Console.Write("Enter name of node: ");
               try
               {
-                string nodeName = Console.ReadLine();
+                string enteredNodeName = Console.ReadLine().ToLower().Trim();
+                string nodeName = char.ToUpper(enteredNodeName[0]) + enteredNodeName.Substring(1);
                 OpcNodeInfo info = client.BrowseNode($"ns=2;Main/{nodeName}");
                 if(!info.DisplayName.IsNull)
                 {
@@ -87,7 +97,7 @@ public class Program
                     var nodeToChange = client.ReadNode(info.NodeId);
                     mutexForNodeVar.ReleaseMutex();
                     Console.Write("Enter new value: ");
-                    string newValueEntered = Console.ReadLine();
+                    string newValueEntered = Console.ReadLine().ToLower().Trim();
                     mutexForNodeVar.WaitOne();
                     Console.WriteLine($"\n\nOld value: {client.ReadNode(info.NodeId)}");
                     mutexForNodeVar.ReleaseMutex();
@@ -95,7 +105,7 @@ public class Program
                     {
                       case OpcDataType.Boolean:
                       {
-                        if(newValueEntered == "1" || newValueEntered.ToUpper()=="TRUE")
+                        if(newValueEntered == "1" || newValueEntered =="true")
                         {
                           client.WriteNode(info.NodeId,true);
                         }
@@ -223,7 +233,7 @@ public class Program
           Thread.Sleep(1000);
         }
         Console.Write("Enter 'reconnect' to reconnect to server, og 'exit' to exit: ");
-        string input = Console.ReadLine();
+        string input = Console.ReadLine().ToLower().Trim();
         if(input == "reconnect")
         {
           client.Connect();
@@ -260,7 +270,7 @@ public class Program
     }
     private static void UpdateLevel(object state)
     {
-        var opcClient = (OpcClient)state;
+      var opcClient = (OpcClient)state;
 
       while(opcClient.State == OpcClientState.Connected) //var if frem til 25.06
       {
@@ -303,7 +313,7 @@ public class Program
     }
     private static void HandleDataChanged(object sender, OpcDataChangeReceivedEventArgs e)
     {
-        
+        //Console.WriteLine("Hello from HandleDAtaChanged");      
         OpcMonitoredItem item = (OpcMonitoredItem)sender;
         WriteChangesToFile(item, e, defaultPath);
     }
@@ -361,26 +371,65 @@ public class Program
         Console.Write($"\t{value.Value}");
       }
     }    
-    private static void browseNodes(OpcClient opcClient, List<OpcNodeId> idList)
+    private static OpcNodeId findNodeToSubscribe(OpcNodeInfo node)//(OpcClient opcClient)//, List<OpcNodeId> idList)
     {
-      Console.Write("Enter the name of the node you want to browse: ");
-      string nodeOfInterest = Console.ReadLine();
-      
-      OpcNodeInfo mainInfo = opcClient.BrowseNode("ns=2;"+nodeOfInterest);//("ns=2;Main");
-
-      Console.WriteLine("\n**********************");
-      Console.WriteLine($"BROWSING NODE: {mainInfo.DisplayName}");
-      Console.WriteLine("**********************");      
-      Console.WriteLine("Printing all childnodes of " + mainInfo.DisplayName + ":");
-      Console.Write("Name:");
-      foreach(var subNode in mainInfo.Children())
-      {
-        Console.Write($"\t{subNode.Name}");
-        
-        idList.Add(subNode.NodeId);
-      }
+      OpcNodeId nodeId;
+      PrintNodes(node);
       Console.WriteLine();
+      Console.Write("Enter the letter assosiated with the node of interest: ");
+      char enteredChar = Console.ReadKey().KeyChar;
+      int enteredInt = (int)(enteredChar) - 97;
+      Console.WriteLine();
+      if (Math.Abs(enteredInt + 1) <= node.Children().Count())
+      {
+        nodeId = node.Children().ElementAt(enteredInt).NodeId;
+
+        OpcNodeInfo enteredNode = node.Children().ElementAt(enteredInt);
+        var ds = enteredNode.Children();
+        if (enteredNode.Children().Count() != 0)
+        {
+          nodeId = findNodeToSubscribe(enteredNode);
+        }
+        else
+        {
+          Console.WriteLine($"Do you want to subscribe to: {enteredNode.NodeId.ValueAsString}? (y/n)");
+          char choice = Console.ReadKey().KeyChar;
+          Console.WriteLine();
+          if(choice == 'y')
+          {
+            return nodeId;
+          }
+          else
+          {
+            return null;
+          }          
+        }
+        return nodeId;
+      }
+      else
+      {
+        Console.WriteLine("You have entered an invalid value...");
+        return null;
+      }
     }
+
+    private static void PrintNodes(OpcNodeInfo node)
+    {
+        Console.WriteLine("Possible nodes:");
+        for (int i = 0; i < node.Children().Count(); i++)
+        {
+            Console.Write($"{(char)('a' + i)}. {node.Children().ElementAt(i).DisplayName}");
+            if (i+1 >= 4 && (i+1) % 4 == 0)
+            {
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.Write("\t");
+            }
+        }
+    }
+
     private static void DisplaySubscribedNodes(OpcClient opcClient)
     {
         List<OpcNodeInfo> returnList = new List<OpcNodeInfo>();

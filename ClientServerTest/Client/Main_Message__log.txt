@@ -19,3 +19,4 @@
 24.06.2019 14:46:53 Data Change from NodeId 'Main/Message': Meldingsverdiaaaaaa
 24.06.2019 14:46:56 Data Change from NodeId 'Main/Message': Meldingsverdiaaaaaaa
 25.06.2019 14:59:17 Data Change from NodeId 'Main/Message': Meldingsverdi
+26.06.2019 09:16:38 Data Change from NodeId 'Main/Message': Meldingsverdi
