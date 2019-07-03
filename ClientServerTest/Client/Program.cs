@@ -57,7 +57,10 @@ public class Program
                   OpcNodeInfo nodeInfo = client.BrowseNode($"2:{nodeIdSubscr.ValueAsString}");
                   if(!nodeInfo.DisplayName.IsNull)//TODO: Se om dette er en god nok test
                   {
-                    client.SubscribeDataChange(nodeInfo.NodeId, HandleDataChanged);
+                    OpcDataChangeFilter filter = new OpcDataChangeFilter();
+                    filter.DeadbandValue = 10.0;
+                    client.SubscribeDataChange(nodeInfo.NodeId,filter,HandleDataChanged);
+                    //client.SubscribeDataChange(nodeInfo.NodeId, HandleDataChanged,);
                     Console.WriteLine($"Subscribed to {nodeInfo.NodeId.Value}\n");
                   }
                   else

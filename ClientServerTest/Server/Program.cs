@@ -222,7 +222,7 @@ public class MyNodeManager : OpcNodeManager
       var errorAlarmeNode = new OpcDataVariableNode<string>(mainAlarmNode,"Error");
 
       var mainLevelNode = new OpcDataVariableNode<double>(mainNode,"Level");
-      var errorLeveleNode = new OpcDataVariableNode<string>(mainLevelNode,"Error");
+      //var errorLeveleNode = new OpcDataVariableNode<string>(mainLevelNode,"Error");
 
       // Return each custom root node using yield return.
       yield return mainNode;

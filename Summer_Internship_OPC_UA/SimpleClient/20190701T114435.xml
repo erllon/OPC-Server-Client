@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Device ProdName="SmartGuard" ProdNo="5100" ProtocolVer="6" DeviceType="Instrument" SessionID="5100-744-2019-07-01T10:42:58Z" ID="5100-744" SerialNo="744" Descr="SMARTGUARD Platform" xmlns="http://www.aadi.no/RTOutSchema">
+	<Time>2019-07-01T11:44:54.763Z</Time>
+	<TimeReceived>2019-07-01T11:44:35.1054732Z</TimeReceived>
+	<SystemInformation>
+		<SystemInfo ID="10" Descr="Owner" Type="VT_BSTR" />
+		<SystemInfo ID="13" Descr="Location " Type="VT_BSTR" />
+		<SystemInfo ID="12" Descr="Reference" Type="VT_BSTR" />
+		<SystemInfo ID="21" Descr="GeoPosition" Type="VT_BSTR" />
+		<SystemInfo ID="30" Descr="VerticalPosition" Type="VT_BSTR" />
+	</SystemInformation>
+	<Data GroupDescr="Main" GroupID="0" SessionID="5100-744-0-2019-07-01T10-43-05.337Z">
+		<Time>2019-07-01T11:44:54Z</Time>
+		<RecordNumber>1855</RecordNumber>
+		<SensorData NodeTypeID="2060" Descr="Conductivity Sensor #97" ID="4319-97" SerialNo="97" ProdNo="4319" ProdName="Conductivity Sensor" ProtocolVer="6" GeoPosition="60.323605,5.37225">
+			<Parameters>
+				<Point RangeMax="75" RangeMin="0" Descr="Conductivity" ID="1" Type="VT_R4" Unit="mS/cm" Format="%0.3f">
+					<Value>69.9308</Value>
+				</Point>
+				<Point RangeMax="40" RangeMin="-5" Descr="Temperature" ID="2" Type="VT_R4" Unit="Deg.C" Format="%0.3f">
+					<Value>25.1982</Value>
+				</Point>
+				<Point RangeMax="43" RangeMin="0" Descr="Salinity" ID="3" Type="VT_R4" Unit="PSU" Format="%0.3f">
+					<Value>47.6574</Value>
+				</Point>
+				<Point RangeMax="1075" RangeMin="995" Descr="Density" ID="4" Type="VT_R4" Unit="kg/m3" Format="%0.3f">
+					<Value>1032.88</Value>
+				</Point>
+				<Point RangeMax="1650" RangeMin="1390" Descr="Soundspeed" ID="5" Type="VT_R4" Unit="m/s" Format="%0.3f">
+					<Value>1548.6</Value>
+				</Point>
+				<Point Descr="Conductance" ID="6" Type="VT_R4" Unit="mS" Format="%0.3f">
+					<Value>15.0511</Value>
+				</Point>
+				<Point Descr="RawCond0" ID="7" Type="VT_I4" Unit="LSB">
+					<Value>54478</Value>
+				</Point>
+				<Point Descr="RawCond1" ID="8" Type="VT_I4" Unit="LSB">
+					<Value>54478</Value>
+				</Point>
+				<Point Descr="ZAmp" ID="9" Type="VT_R4" Unit="mV" Format="%0.3f">
+					<Value>-1389.12</Value>
+				</Point>
+				<Point Descr="RawTemp" ID="10" Type="VT_R4" Unit="mV" Format="%0.3f">
+					<Value>1544.66</Value>
+				</Point>
+			</Parameters>
+		</SensorData>
+		<SystemData Descr="System Parameters" ID="SYSDATA-0">
+			<Parameters>
+				<Point RangeMax="30" RangeMin="0" Descr="Input Voltage" ID="0" Type="VT_R4" Unit="V" Format="%.1f">
+					<Value>24.5493</Value>
+				</Point>
+				<Point RangeMax="30" RangeMin="0" Descr="Input Voltage Avg" ID="1" Type="VT_R4" Unit="V" Format="%.1f">
+					<Value>24.5608</Value>
+				</Point>
+				<Point RangeMax="30" RangeMin="0" Descr="Input Voltage Min" ID="2" Type="VT_R4" Unit="V" Format="%.1f">
+					<Value>24.5493</Value>
+				</Point>
+				<Point RangeMax="30" RangeMin="0" Descr="Input Voltage Max" ID="3" Type="VT_R4" Unit="V" Format="%.1f">
+					<Value>24.5723</Value>
+				</Point>
+				<Point RangeMax="100" RangeMin="0" Descr="CPU Core Active" ID="4" Type="VT_R4" Unit="%">
+					<Value>100</Value>
+				</Point>
+				<Point RangeMax="32000000" RangeMin="0" Descr="Memory Used" ID="5" Type="VT_I4" Unit="Bytes">
+					<Value>15118336</Value>
+				</Point>
+				<Point RangeMax="60" RangeMin="-40" Descr="Internal Temperature" ID="6" Type="VT_R4" Unit="DegC" Format="%.1f">
+					<Value>25.5</Value>
+				</Point>
+			</Parameters>
+		</SystemData>
+		<SpecifiedInterval>2</SpecifiedInterval>
+		<ActualInterval>1.982</ActualInterval>
+	</Data>
+	<Notifications />
+</Device>
